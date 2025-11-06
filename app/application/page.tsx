@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react';
 import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
 
 export default function ApplicationPage() {
   const [formData, setFormData] = useState({
@@ -164,8 +163,6 @@ export default function ApplicationPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
-      <Navigation />
-      
       <div className="pt-24 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
@@ -1214,8 +1211,6 @@ export default function ApplicationPage() {
           </form>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

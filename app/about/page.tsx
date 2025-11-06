@@ -5,8 +5,6 @@ import Footer from '../components/Footer';
 export default function IDPPage() {
   return (
     <div className="min-h-screen">
-      <Navigation />
-      
       {/* Hero Section */}
       <section className="pt-32 pb-16 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -90,7 +88,7 @@ export default function IDPPage() {
 
               <div className="mt-8">
                 <Link
-                  href="#apply"
+                  href="/application"
                   className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:from-blue-700 hover:to-indigo-700 transform hover:-translate-y-1 transition-all duration-300 shadow-xl hover:shadow-2xl"
                 >
                   Start Application
