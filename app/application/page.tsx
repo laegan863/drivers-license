@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Navigation from '../components/Navigation';
+import { redirect } from 'next/navigation';
 
 export default function ApplicationPage() {
   const [formData, setFormData] = useState({
@@ -50,6 +51,8 @@ export default function ApplicationPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Initialize canvas with white background
   const initializeCanvas = () => {
@@ -116,50 +119,71 @@ export default function ApplicationPage() {
     }));
   };
 
+  // Get coordinates for both mouse and touch events
+  const getEventCoordinates = (e: any) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    let clientX, clientY;
+    
+    if ('touches' in e) {
+      // Touch event
+      const touch = e.touches[0] || e.changedTouches[0];
+      clientX = touch.clientX;
+      clientY = touch.clientY;
+    } else {
+      // Mouse event
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  };
+
   // Canvas signature functions
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const startDrawing = (e: any) => {
+    e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
     
     setIsDrawing(true);
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const coords = getEventCoordinates(e);
     
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.beginPath();
-      ctx.moveTo(
-        (e.clientX - rect.left) * scaleX,
-        (e.clientY - rect.top) * scaleY
-      );
+      ctx.moveTo(coords.x, coords.y);
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
     }
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const draw = (e: any) => {
+    e.preventDefault();
     if (!isDrawing) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const coords = getEventCoordinates(e);
     
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      ctx.lineTo(
-        (e.clientX - rect.left) * scaleX,
-        (e.clientY - rect.top) * scaleY
-      );
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 3;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      ctx.lineTo(coords.x, coords.y);
       ctx.stroke();
     }
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = (e?: any) => {
+    if (e) e.preventDefault();
     setIsDrawing(false);
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -180,41 +204,204 @@ export default function ApplicationPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Convert canvas signature to base64 if draw mode is selected
-    let signatureData = null;
+    if (isSubmitting) return; // Prevent double submission
+    
+    setIsSubmitting(true);
+    setUploadProgress(10);
+    
+    // Helper function to convert base64 to Blob
+    const base64ToBlob = (base64: string): Blob => {
+      const parts = base64.split(';base64,');
+      const contentType = parts[0].split(':')[1];
+      const raw = window.atob(parts[1]);
+      const rawLength = raw.length;
+      const uInt8Array = new Uint8Array(rawLength);
+      
+      for (let i = 0; i < rawLength; ++i) {
+        uInt8Array[i] = raw.charCodeAt(i);
+      }
+      
+      return new Blob([uInt8Array], { type: contentType });
+    };
+    
+    setUploadProgress(20);
+    
+    // Prepare FormData for file upload
+    const formDataToSend = new FormData();
+    
+    // Add all text fields
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('firstName', formData.firstName);
+    formDataToSend.append('lastName', formData.lastName);
+    formDataToSend.append('residenceAddress', formData.residenceAddress);
+    formDataToSend.append('cityAndState', formData.cityAndState);
+    formDataToSend.append('zipCode', formData.zipCode);
+    formDataToSend.append('country', formData.country);
+    formDataToSend.append('dateOfBirth', formData.dateOfBirth);
+    formDataToSend.append('countryOfBirth', formData.countryOfBirth);
+    formDataToSend.append('gender', formData.gender);
+    formDataToSend.append('eyeColor', formData.eyeColor);
+    formDataToSend.append('height', formData.height);
+    formDataToSend.append('vehicleTypes', JSON.stringify(formData.vehicleTypes));
+    formDataToSend.append('nationalDriverLicense', formData.nationalDriverLicense);
+    formDataToSend.append('nationalDriverLicenseCountry', formData.nationalDriverLicenseCountry);
+    formDataToSend.append('idpPeriod', formData.idpPeriod);
+    formDataToSend.append('shippingAddress', formData.shippingAddress);
+    formDataToSend.append('apartmentNumber', formData.apartmentNumber);
+    formDataToSend.append('shippingCityState', formData.shippingCityState);
+    formDataToSend.append('shippingZipCode', formData.shippingZipCode);
+    formDataToSend.append('shippingCountry', formData.shippingCountry);
+    formDataToSend.append('phone', formData.phone);
+    formDataToSend.append('suggestion', formData.suggestion);
+    formDataToSend.append('acceptConditions', formData.acceptConditions.toString());
+    formDataToSend.append('receiveInformation', formData.receiveInformation.toString());
+    formDataToSend.append('signatureType', formData.signatureType);
+    
+    // Handle signature
     if (formData.signatureType === 'draw') {
       const canvas = canvasRef.current;
       if (canvas) {
-        // Check if canvas has any drawing
         const ctx = canvas.getContext('2d');
         if (ctx) {
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const hasDrawing = imageData.data.some(channel => channel !== 0);
+          let hasDrawing = false;
+          
+          // Check for any non-white pixels
+          for (let i = 0; i < imageData.data.length; i += 4) {
+            const r = imageData.data[i];
+            const g = imageData.data[i + 1];
+            const b = imageData.data[i + 2];
+            
+            if (r !== 255 || g !== 255 || b !== 255) {
+              hasDrawing = true;
+              break;
+            }
+          }
           
           if (hasDrawing) {
-            // Convert canvas to base64 PNG
-            signatureData = canvas.toDataURL('image/png');
+            // Convert canvas to blob and add to FormData
+            const signatureBase64 = canvas.toDataURL('image/png');
+            const signatureBlob = base64ToBlob(signatureBase64);
+            formDataToSend.append('signature', signatureBlob, 'signature.png');
+          } else {
+            setIsSubmitting(false);
+            setUploadProgress(0);
+            alert('Please draw your signature or switch to upload mode to provide a signature image.');
+            return;
           }
         }
       }
+    } else if (formData.signatureImage) {
+      // Add uploaded signature image
+      formDataToSend.append('signature', formData.signatureImage);
     }
     
-    // Prepare form data for submission
-    const submissionData = {
-      ...formData,
-      signatureBase64: signatureData, // Add base64 signature
-    };
+    setUploadProgress(40);
     
-    console.log('Form submitted:', submissionData);
-    console.log('Signature Base64 (first 100 chars):', signatureData ? signatureData.substring(0, 100) + '...' : 'No signature');
-    alert('Application submitted successfully! We will contact you soon.');
+    // Add photo image if exists
+    if (formData.photoImage) {
+      formDataToSend.append('photo', formData.photoImage);
+    }
+    
+    // Add license image if exists
+    if (formData.licenseImages) {
+      formDataToSend.append('license', formData.licenseImages);
+    }
+    
+    setUploadProgress(60);
+    
+    try {
+      // Send to Laravel API
+      const response = await fetch('http://localhost/Laegan/dl/public/api/applications', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+      
+      setUploadProgress(80);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('Success:', result);
+      
+      setUploadProgress(100);
+      
+      // Store application ID in localStorage for checkout page
+      if (result.data?.id) {
+        localStorage.setItem('applicationId', result.data.id.toString());
+        localStorage.setItem('applicationData', JSON.stringify({
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          idpPeriod: formData.idpPeriod,
+          ...result.data
+        }));
+      }
+      
+      // Redirect to checkout page after short delay
+      setTimeout(() => {
+        // window.location.href = '/checkout';
+        redirect('/checkout');
+      }, 500);
+      
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setIsSubmitting(false);
+      setUploadProgress(0);
+      alert('Error submitting application. Please try again.');
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+      {/* Loading Overlay */}
+      {isSubmitting && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              {/* Animated Spinner */}
+              <div className="relative w-24 h-24 mx-auto mb-6">
+                <svg className="w-24 h-24 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-2xl font-bold text-blue-600">{uploadProgress}%</span>
+                </div>
+              </div>
+              
+              {/* Progress Text */}
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                Submitting Your Application
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Please wait while we process your information...
+              </p>
+              
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                <div 
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 h-full rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              
+              {/* Status Messages */}
+              <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                {uploadProgress < 30 && '📝 Preparing your application...'}
+                {uploadProgress >= 30 && uploadProgress < 60 && '✍️ Processing signature...'}
+                {uploadProgress >= 60 && uploadProgress < 90 && '📤 Uploading documents...'}
+                {uploadProgress >= 90 && '✅ Finalizing submission...'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="pt-24 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
@@ -1169,6 +1356,10 @@ export default function ApplicationPage() {
                                     onMouseMove={draw}
                                     onMouseUp={stopDrawing}
                                     onMouseLeave={stopDrawing}
+                                    onTouchStart={startDrawing}
+                                    onTouchMove={draw}
+                                    onTouchEnd={stopDrawing}
+                                    onTouchCancel={stopDrawing}
                                     className="w-full cursor-crosshair"
                                     style={{ touchAction: 'none' }}
                                   />
@@ -1242,18 +1433,35 @@ export default function ApplicationPage() {
                 </div>
                 <button
                   type="submit"
-                  className="group relative w-full bg-white text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold py-5 px-8 rounded-xl text-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 shadow-xl flex items-center justify-center mx-auto overflow-hidden"
+                  disabled={isSubmitting}
+                  className={`group relative w-full bg-white text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold py-5 px-8 rounded-xl text-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 shadow-xl flex items-center justify-center mx-auto overflow-hidden ${
+                    isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
+                  }`}
                 >
                   <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-50 to-purple-50 group-hover:from-white group-hover:to-white transition-all duration-300"></span>
-                  <svg className="relative w-6 h-6 mr-3 text-blue-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="relative bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 font-bold">
-                    Submit Application
-                  </span>
-                  <svg className="relative w-6 h-6 ml-3 text-purple-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
+                  {isSubmitting ? (
+                    <>
+                      <svg className="relative w-6 h-6 mr-3 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span className="relative bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 font-bold">
+                        Submitting... {uploadProgress}%
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="relative w-6 h-6 mr-3 text-blue-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="relative bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 font-bold">
+                        Submit Application
+                      </span>
+                      <svg className="relative w-6 h-6 ml-3 text-purple-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </>
+                  )}
                 </button>
                 <p className="mt-4 text-white/70 text-xs">
                   🔒 Your information is secure and encrypted
