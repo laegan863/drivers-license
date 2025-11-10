@@ -57,7 +57,7 @@ export default function CheckoutForm({ applicationData, amount }: CheckoutFormPr
         storageUtils.clearApplicationData();
 
         // Redirect to success page
-        router.push(`/success?payment_intent=${paymentIntent.id}`);
+        router.push(`/success`);
       }
     } catch (err) {
       console.error('Payment error:', err);
