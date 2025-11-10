@@ -3,6 +3,7 @@
 import { useState, FormEvent, useCallback } from 'react';
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { paymentService } from '@/lib/services/payment.service';
 import { storageUtils } from '@/lib/utils/storage';
 import type { ApplicationSummary } from '@/lib/types/application';
@@ -57,7 +58,8 @@ export default function CheckoutForm({ applicationData, amount }: CheckoutFormPr
         storageUtils.clearApplicationData();
 
         // Redirect to success page
-        router.push(`/success`);
+        // router.push(`/success`);
+        redirect(`/success`);
       }
     } catch (err) {
       console.error('Payment error:', err);
