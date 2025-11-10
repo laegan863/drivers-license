@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Navigation from '../components/Navigation';
 
 export default function ApplicationPage() {
@@ -50,6 +50,29 @@ export default function ApplicationPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  // Initialize canvas with white background
+  const initializeCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      // Fill canvas with white background
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+  };
+
+  // Initialize canvas on mount and when switching to draw mode
+  useEffect(() => {
+    if (formData.signatureType === 'draw') {
+      // Small delay to ensure canvas is rendered
+      setTimeout(() => {
+        initializeCanvas();
+      }, 100);
+    }
+  }, [formData.signatureType]);
 
   const vehicleOptions = [
     { value: 'A', label: 'A - Motorcycle' },
@@ -151,13 +174,42 @@ export default function ApplicationPage() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Clear and refill with white background
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    
+    // Convert canvas signature to base64 if draw mode is selected
+    let signatureData = null;
+    if (formData.signatureType === 'draw') {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        // Check if canvas has any drawing
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const hasDrawing = imageData.data.some(channel => channel !== 0);
+          
+          if (hasDrawing) {
+            // Convert canvas to base64 PNG
+            signatureData = canvas.toDataURL('image/png');
+          }
+        }
+      }
+    }
+    
+    // Prepare form data for submission
+    const submissionData = {
+      ...formData,
+      signatureBase64: signatureData, // Add base64 signature
+    };
+    
+    console.log('Form submitted:', submissionData);
+    console.log('Signature Base64 (first 100 chars):', signatureData ? signatureData.substring(0, 100) + '...' : 'No signature');
     alert('Application submitted successfully! We will contact you soon.');
   };
 
