@@ -69,6 +69,7 @@ export default function ApplicationPage() {
 
   // Initialize canvas on mount and when switching to draw mode
   useEffect(() => {
+    console.log("API URL:" + `${process.env.NEXT_PUBLIC_APP_URL}`)
     if (formData.signatureType === 'draw') {
       // Small delay to ensure canvas is rendered
       setTimeout(() => {
@@ -315,7 +316,7 @@ export default function ApplicationPage() {
     
     try {
       // Send to Laravel API
-      const response = await fetch('http://localhost/Laegan/dl/public/api/applications', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/applications`, {
         method: 'POST',
         body: formDataToSend,
       });

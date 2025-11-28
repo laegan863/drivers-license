@@ -25,6 +25,7 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
+    // console.log("")
     setMounted(true);
     const data = storageUtils.getApplicationData();
     setApplicationData(data);

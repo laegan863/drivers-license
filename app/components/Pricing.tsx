@@ -1,195 +1,239 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
 
 export default function Pricing() {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-
   const plans = [
     {
       duration: '1 Year',
       price: '39.99',
+      period: 'one-time',
       popular: false,
+      color: 'blue',
       features: [
-        'Standard processing time',
+        'Valid for 12 months',
+        'Digital permit delivery',
         'Email support',
-        'Online application tracking',
-        'Digital license copy',
-        'One renewal reminder'
+        '150+ countries accepted',
+        'Online verification'
       ]
     },
     {
       duration: '2 Years',
       price: '54.99',
+      period: 'one-time',
       popular: false,
+      color: 'indigo',
+      savings: '25',
       features: [
-        'Standard processing time',
+        'Valid for 24 months',
+        'Digital + Physical delivery',
         'Priority email support',
-        'Online application tracking',
-        'Digital license copy',
-        'Renewal reminders',
-        'Save $25 vs annual'
+        '150+ countries accepted',
+        'Online verification',
+        'Free replacement once'
       ]
     },
     {
       duration: '3 Years',
       price: '69.99',
+      period: 'one-time',
       popular: true,
+      color: 'purple',
+      savings: '50',
       features: [
-        'Fast processing (2 days)',
+        'Valid for 36 months',
+        'Express processing (24hr)',
         'Priority support 24/7',
-        'Online application tracking',
-        'Digital + Physical license',
-        'Automatic renewal reminders',
-        'Save $50 vs annual',
-        'Free replacement once'
+        'Digital + Physical delivery',
+        '150+ countries accepted',
+        'Free replacement twice',
+        'Renewal reminders'
       ]
     },
     {
       duration: '5 Years',
       price: '84.99',
+      period: 'one-time',
       popular: false,
+      color: 'pink',
+      savings: '115',
       features: [
-        'Express processing (1 day)',
+        'Valid for 60 months',
+        'Express processing (24hr)',
         'VIP support 24/7',
-        'Premium tracking dashboard',
-        'Digital + Physical license',
-        'Automatic renewal reminders',
-        'Save $115 vs annual',
-        'Free replacement twice',
-        'International license included'
+        'Digital + Physical delivery',
+        '150+ countries accepted',
+        'Unlimited replacements',
+        'Priority renewal'
       ]
     },
     {
       duration: '10 Years',
       price: '99.99',
+      period: 'one-time',
       popular: false,
+      color: 'rose',
+      savings: '300',
       features: [
+        'Valid for 120 months',
         'Instant processing',
         'Dedicated VIP support',
-        'Premium tracking dashboard',
-        'All license formats',
-        'Lifetime renewal reminders',
-        'Save $300 vs annual',
-        'Unlimited free replacements',
-        'International license included',
-        'Priority appointment booking'
+        'All delivery options',
+        '150+ countries accepted',
+        'Unlimited replacements',
+        'Lifetime reminders',
+        'Priority everything'
       ]
     }
   ];
 
   return (
-    <section id="pricing" className="py-20 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="pricing" className="py-24 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl opacity-10"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl opacity-10"></div>
+      </div>
+      
+      {/* Grid pattern */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzMzMzM2NiIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-10"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-blue-500 mb-6">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            💲 Pricing Plans
+          <span className="inline-block px-4 py-2 bg-purple-500/10 text-purple-300 border border-purple-500/20 rounded-full text-sm font-semibold mb-4 tracking-wide">
+            💎 PRICING PLANS
+          </span>
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+            Simple, Transparent
+            <span className="block mt-2 bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent">Pricing</span>
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Choose the perfect plan for your needs. All plans include secure processing and guaranteed delivery.
+          <p className="text-xl text-purple-100/70 max-w-3xl mx-auto">
+            Choose the validity period that works best for you. All plans include full international coverage.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+        <div className="grid lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-6 mb-16">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 ${
-                plan.popular ? 'ring-4 ring-blue-500 scale-105' : ''
-              } ${selectedPlan === plan.duration ? 'ring-4 ring-green-500' : ''}`}
+              className={`relative group ${
+                plan.popular ? 'lg:-mt-4 lg:mb-4' : ''
+              }`}
             >
               {/* Popular Badge */}
               {plan.popular && (
-                <div className="absolute w-full -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
-                    Most Popular
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
+                  <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg shadow-purple-500/50 whitespace-nowrap">
+                    ⭐ BEST VALUE
                   </span>
                 </div>
               )}
 
-              <div className="p-6">
-                {/* Duration */}
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center">
-                  {plan.duration}
-                </h3>
+              {/* Card */}
+              <div className={`relative h-full bg-white/5 backdrop-blur-sm rounded-2xl border transition-all duration-300 overflow-hidden ${
+                plan.popular 
+                  ? 'border-purple-500/50 shadow-2xl shadow-purple-500/20' 
+                  : 'border-white/10 hover:border-purple-500/30'
+              } group-hover:bg-white/10`}>
+                
+                {/* Gradient top line */}
+                <div className={`h-1 bg-gradient-to-r ${
+                  plan.popular 
+                    ? 'from-purple-500 via-pink-500 to-red-500' 
+                    : 'from-blue-500 to-purple-500'
+                }`}></div>
 
-                {/* Price */}
-                <div className="mb-6 text-center">
-                  <div className="flex items-center justify-center">
-                    <span className="text-gray-500 dark:text-gray-400 text-lg mr-2">USD</span>
-                    <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                      {plan.price}
-                    </span>
+                <div className="p-6">
+                  {/* Duration */}
+                  <h3 className="text-xl font-bold text-white mb-1 text-center">
+                    {plan.duration}
+                  </h3>
+                  
+                  {plan.savings && (
+                    <p className="text-green-400 text-sm text-center font-medium mb-4">
+                      Save ${plan.savings}
+                    </p>
+                  )}
+                  {!plan.savings && <div className="h-6 mb-4"></div>}
+
+                  {/* Price */}
+                  <div className="text-center mb-6">
+                    <div className="flex items-baseline justify-center">
+                      <span className="text-purple-300 text-lg">$</span>
+                      <span className="text-5xl font-bold text-white mx-1">
+                        {plan.price.split('.')[0]}
+                      </span>
+                      <span className="text-purple-300 text-lg">.{plan.price.split('.')[1]}</span>
+                    </div>
+                    <p className="text-purple-300/60 text-sm mt-1">one-time payment</p>
                   </div>
+
+                  {/* Features */}
+                  <ul className="space-y-3 mb-6">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start text-sm">
+                        <svg className="w-5 h-5 text-green-400 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-purple-100/80">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA Button */}
+                  <Link
+                    href="/application"
+                    className={`block w-full py-3 rounded-xl font-semibold text-center transition-all duration-300 ${
+                      plan.popular
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50'
+                        : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                    }`}
+                  >
+                    Get Started
+                  </Link>
                 </div>
-
-                {/* Features */}
-                <ul className="space-y-3 mb-6">
-                  {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start text-sm">
-                      <svg className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-gray-600 dark:text-gray-300">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA Button */}
-                <button
-                  onClick={() => setSelectedPlan(plan.duration)}
-                  className={`w-full py-3 rounded-lg font-semibold transition-all duration-300 ${
-                    plan.popular
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl'
-                      : selectedPlan === plan.duration
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
-                  }`}
-                >
-                  {selectedPlan === plan.duration ? 'Selected ✓' : 'Select Plan'}
-                </button>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Additional Info */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="text-3xl mb-2">🔒</div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Secure Payment</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                All transactions are encrypted and secure
-              </p>
+        {/* Trust Badges */}
+        <div className="grid sm:grid-cols-3 gap-6 mb-12">
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 text-center">
+            <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-green-500/25">
+              🔒
             </div>
-            <div>
-              <div className="text-3xl mb-2">💯</div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Money-Back Guarantee</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                30-day full refund if not satisfied
-              </p>
+            <h4 className="font-semibold text-white mb-2">Secure Payment</h4>
+            <p className="text-sm text-purple-100/60">
+              Bank-level encryption protects all transactions
+            </p>
+          </div>
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 text-center">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-blue-500/25">
+              💯
             </div>
-            <div>
-              <div className="text-3xl mb-2">📱</div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Instant Access</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Start your application immediately after payment
-              </p>
+            <h4 className="font-semibold text-white mb-2">Money-Back Guarantee</h4>
+            <p className="text-sm text-purple-100/60">
+              30-day full refund if you're not satisfied
+            </p>
+          </div>
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 text-center">
+            <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-purple-500/25">
+              ⚡
             </div>
+            <h4 className="font-semibold text-white mb-2">Instant Access</h4>
+            <p className="text-sm text-purple-100/60">
+              Start your application immediately after payment
+            </p>
           </div>
         </div>
 
         {/* Note */}
-        <p className="text-center text-gray-500 dark:text-gray-400 mt-8 text-sm">
-          * All prices are in USD. Additional state fees may apply. Contact us for group discounts.
+        <p className="text-center text-purple-200/50 text-sm">
+          * All prices in USD. Processing fees may apply. Contact us for group discounts or corporate packages.
         </p>
       </div>
     </section>
